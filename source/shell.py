@@ -3,11 +3,10 @@
 # Dr. Freudenthal
 # This program corresponds to Lab Assignment #1. This code mimics a bash shell.
 
-
 import os
 import sys
 import re
-from readingLines import my_getLine
+from myRead import my_getLine
 
 PS1= "$ "
 
@@ -40,4 +39,3 @@ while(1):
         
     else:
         childPidCode = os.wait()
-    
