@@ -8,7 +8,7 @@ import sys
 import re
 from read import my_getLine
 
-PS1= "$"
+PS1= "$" # Prompt
 
 while(1):
     os.write(1, PS1.encode())
@@ -16,18 +16,19 @@ while(1):
     
     if len(input) == 0:
         break
-    if input.lower() == "exit":
+    
+    if input.lower() == "exit": # Exit command 
         os.write(2,"Shell Exited \n".encode())
         sys.exit(1)
     
     lines = input.split()
     rc = os.fork()
     
-    if rc < 0:
+    if rc < 0: # Failed 
         os.write(2,("Fork failed, returning \n").encode())
         sys.exit(1)
         
-    elif rc == 0:
+    elif rc == 0: # Child process 
         for dir in re.split(":",os.environ['PATH']):
             program = "%s/%s" % (dir, lines[0])
             try:
@@ -37,5 +38,5 @@ while(1):
         os.write(2,("Command Fails").encode())
         sys.exit(1)
         
-    else:
+    else: # Parent process 
         childPidCode = os.wait()
