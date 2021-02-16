@@ -71,7 +71,8 @@ while(1):
         # Check for Pipe    
         elif(pipe.hasPipe(args)):
             if(pipe.isValid(args)):
-                # Pipe work goes here 
+                # Pipe work goes here
+                x = 0
             else:
                 os.write(2,("Invalid Pipe Syntax \n").encode())
                 sys.exit(1)

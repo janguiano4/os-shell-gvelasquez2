@@ -10,7 +10,7 @@ def hasPipe(args): # A method that checks if there is a | in the args list
 
 def isValid(args): 
     if args[0] == '|' or args[len -1] == '|': # If there is a pipe at the first or last index
-        Return False
+        return False
     
     for i in range(len(args)):
         if(args[i] == '|'):
