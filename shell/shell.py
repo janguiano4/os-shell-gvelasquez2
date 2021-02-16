@@ -7,6 +7,7 @@ import os
 import sys
 import re
 import redirect
+import pipe
 from read import my_getLine
 
 while(1):
@@ -25,7 +26,6 @@ while(1):
         os.write(2,"Shell Exited \n".encode())
         sys.exit(1)
     
-
     if args[0] == "cd": # Requirement 4: cd command
         if len(args) == 1:
             os.chdir("..")
@@ -40,8 +40,8 @@ while(1):
         sys.exit(1)
         
     elif rc == 0: # Child process
-
-        # Check for Redirection #
+        
+        # Check for Redirection 
         if(redirect.hasRedirect(args)):
             if(redirect.isValid(args)): # Check syntax of command
                 if(redirect.hasOutput(args)):
@@ -68,6 +68,22 @@ while(1):
             os.write(2,(args[0] + ":command not found \n").encode()) # Requirement 3: Command NF
             sys.exit(1)
 
+        # Check for Pipe    
+        elif(pipe.hasPipe(args)):
+            if(pipe.isValid(args)):
+                # Pipe work goes here 
+            else:
+                os.write(2,("Invalid Pipe Syntax \n").encode())
+                sys.exit(1)
+
+            for dir in re.split(":",os.environ['PATH']):
+                program = "%s/%s" % (dir,args[0])
+                try:
+                    os.execve(program,args,os.environ)
+                except FileNotFoundError:
+                    pass
+                os.write(2,(args[0] + ":command not found \n").encode())
+                sys.exit(1)
 
         # No Pipes or Redirections     
         else: 
@@ -79,7 +95,6 @@ while(1):
                     pass
             os.write(2,(args[0] + ":command not found \n").encode())
             sys.exit(1)
-                    
-            
+                                
     else: # Parent process 
         childPidCode = os.wait()
