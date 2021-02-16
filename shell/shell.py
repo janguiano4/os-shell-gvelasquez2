@@ -22,17 +22,17 @@ while(1):
     if len(input) == 0: # If input is empty 
         break
     
-    if args[0].lower() == "exit": # Requirement 4: exit command 
-        os.write(2,"Shell Exited \n".encode())
+    if input.lower() == "exit": # Requirement 4: exit command
+        os.write(2,("Shell Exited \n".encode()))
         sys.exit(1)
-    
-    if args[0] == "cd": # Requirement 4: cd command
+
+    if args[0] == "cd": #Requirement 4: cd command
         if len(args) == 1:
             os.chdir("..")
         else:
             os.chdir(args[1])
         continue # Return to top of while
-    
+
     rc = os.fork()
 
     if rc < 0: # Requirement 3: Command fails
