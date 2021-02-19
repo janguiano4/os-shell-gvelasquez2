@@ -18,15 +18,14 @@ def my_getChar():
         limit = read(0,1000)
         
         if limit == 0:
-            return "EOF"
+            return None # None
         
     if next < len(limit) -1: # Check to make sure limit[next] wont go out of bounds. 
         c = chr(limit[next]) # convert from ascii to character 
         next +=1
-        return c
-    
+        return c   
     else:
-        return "EOF"
+        return None
 
     
 # This method returns the next line obtained from file descriptor 0 as a String or an empty String if an EOF is reached.
@@ -36,7 +35,7 @@ def my_getLine():
     global limit
     line = ""
     char = my_getChar()
-    while (char != '' and char != "EOF"): # Check to see if we have a character to append.
+    while (char != '' and char != None): # Check to see if we have a character to append.
         line += char
         char = my_getChar()
     next = 0 # reset next and limit after we have have finished a line. 
