@@ -9,7 +9,7 @@ def hasPipe(args): # A method that checks if there is a | in the args list
     return False
 
 def isValid(args): 
-    if args[0] == '|' or args[len -1] == '|': # If there is a pipe at the first or last index
+    if args[0] == '|' or args[len(args) -1] == '|': # If there is a pipe at the first or last index
         return False
     
     for i in range(len(args)):
@@ -22,6 +22,14 @@ def isValid(args):
                 return False
             
     return True # Valid Syntax for Piping 
-            
+
+def getCommands(args): # Splits the args list into the left and right of the pipe symbol
+    for i in range(len(args)):
+        if args[i] == "|":
+            leftHS = args[0:i]
+            rightHS = args[i+1:]
+    return leftHS,rightHS
+
+        
         
 

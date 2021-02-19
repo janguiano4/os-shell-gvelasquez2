@@ -10,6 +10,60 @@ import redirect
 import pipe
 from read import my_getLine
 
+
+def piping(args): # Method to execute piping. Seperated to allow for multiple pipes 
+    leftHS,rightHS = pipe.getCommands(args) # Get left and right hand sides of pipe 
+    pr,pw = os.pipe() # Create pipe 
+
+    rc = os.fork() # Fork off children 
+
+    if rc < 0:
+        os.write(2,("fork failed, returning %d\n" %rc).encode())
+        sys.exit(1)
+
+    elif rc == 0: # Child who will run command 1
+        
+        os.close(1) # Disconnect from display 
+        os.dup(pw) # Connect to input of the pipe 
+        os.set_inheritable(1,True)
+        
+        for fd in (pr,pw): # Disconnect extra connections from the pipe 
+            os.close(fd)
+            
+        for dir in re.split(":",os.environ['PATH']):
+            program = "%s/%s" % (dir, leftHS[0])
+            try:
+                os.execve(program,leftHS,os.environ) # Replace memory with contents of command
+            except FileNotFoundError:
+                pass
+        os.write(2,(leftHS[0] + ":command not found \n").encode())
+        sys.exit(1)
+        
+    else: # Child who will run command 2
+        
+        os.close(0) # Disconnect from keyboard
+        os.dup(pr) # Connect to output of pipe 
+        os.set_inheritable(0,True)
+        
+        for fd in (pr,pw): # Disconnect extra connections to pipe 
+            os.close(fd)
+            
+        if pipe.hasPipe(rightHS): # More than one pipe
+            piping(rightHS)
+            
+        for dir in re.split(":",os.environ['PATH']):
+            program = "%s/%s" % (dir,rightHS[0])
+            try:
+                os.execve(program,rightHS,os.environ) # Replace memeory with contents of command
+            except FileNotFoundError:
+                pass
+            
+        os.write(2,(rightHS[0] + ":command not found \n").encode())
+        sys.exit(1)
+                
+
+os.environ.pop("PS1") # Reset
+        
 while(1):
     if 'PS1' in os.environ: # Requirement 1 Prompt String. Default = "$ "
         os.write(1,(os.environ['PS1']).encode())
@@ -45,16 +99,20 @@ while(1):
         if(redirect.hasRedirect(args)):
             if(redirect.isValid(args)): # Check syntax of command
                 if(redirect.hasOutput(args)):
-                    outputIndex = redirect.output(args)
-                    os.close(1)
-                    os.open(args[outputIndex],os.O_CREAT | os.O_WRONLY)
+                    outputIndex = redirect.output(args) # Get Output Index
+                    os.close(1) # Close stdout
+                    os.open(args[outputIndex],os.O_CREAT | os.O_WRONLY) # Open Output
                     os.set_inheritable(1,True)
+                    args.remove('>') # Remove redirection from command 
+                    args.remove(args[outputIndex]) # ^
                 
                 if(redirect.hasInput(args)): 
-                    inputIndex = redirect.input(args)
-                    os.close(0)
-                    os.open(args[inputIndex],os.O_RDONLY);
+                    inputIndex = redirect.input(args) # Get Input Index
+                    os.close(0) # Close stdin
+                    os.open(args[inputIndex],os.O_RDONLY); # Open Input
                     os.set_inheritable(0,True)
+                    args.remove('<') # Remove redirection from command
+                    args.remove(args[inputIndex]) # ^
             else:
                 os.write(2,("Invalid Redirection Syntax \n".encode()))
                 sys.exit(1)
@@ -62,7 +120,7 @@ while(1):
             for dir in re.split(":",os.environ['PATH']):
                 program = "%s/%s" % (dir, args[0])
                 try:
-                    os.execve(program,args,os.environ) # Requirement 2
+                    os.execve(program,args,os.environ) # Replace memeory with contents of  command
                 except FileNotFoundError:
                     pass
             os.write(2,(args[0] + ":command not found \n").encode()) # Requirement 3: Command NF
@@ -71,27 +129,16 @@ while(1):
         # Check for Pipe    
         elif(pipe.hasPipe(args)):
             if(pipe.isValid(args)):
-                # Pipe work goes here
-                x = 0
+                piping(args) 
             else:
-                os.write(2,("Invalid Pipe Syntax \n").encode())
+                os.write(2,("Invalid Pipe syntax").encode())
                 sys.exit(1)
-
-            for dir in re.split(":",os.environ['PATH']):
-                program = "%s/%s" % (dir,args[0])
-                try:
-                    os.execve(program,args,os.environ)
-                except FileNotFoundError:
-                    pass
-                os.write(2,(args[0] + ":command not found \n").encode())
-                sys.exit(1)
-
         # No Pipes or Redirections     
         else: 
             for dir in re.split(":",os.environ['PATH']):
                 program = "%s/%s" % (dir,args[0])
                 try:
-                    os.execve(program,args,os.environ)
+                    os.execve(program,args,os.environ)  
                 except FileNotFoundError:
                     pass
             os.write(2,(args[0] + ":command not found \n").encode())
