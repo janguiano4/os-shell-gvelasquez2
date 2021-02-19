@@ -31,18 +31,14 @@ def isValid(args): # A method that determines if the redirect syntax is used cor
         return True
 
 def hasInput(args): # A method that determines if there is an Input redirection
-    for i in range(len(args)):
-        if args[i] == '<':
-            return True
+    if '<' in args:
+        return True
     return False
 
-
 def hasOutput(args): # A method that determines if there is an Output redirection 
-    for i in range(len(args)):
-        if args[i] == '>':
-            return True
+    if '>' in args:
+        return True
     return False 
-
     
 def input(args): # A method that returns the index of the Input redirect, -1 if none 
     for i in range(len(args)):
@@ -57,11 +53,3 @@ def output(args): # A method that returns the index of the Output redirect, -1 i
             return i+1
         else:
             return -1
-                   
-#list1 = ["cat", ">", "input.txt"]
-#list2 = ["cat"]
-#list3 = ["cat", ">","txt",">"]
-
-#print(isValid(list1))
-#print(hasRedirect(list2))
-#print(hasRedirect(list3))
