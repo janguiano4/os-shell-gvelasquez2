@@ -61,8 +61,6 @@ def piping(args): # Method to execute piping. Seperated to allow for multiple pi
         os.write(2,(rightHS[0] + ":command not found \n").encode())
         sys.exit(1)
                 
-
-os.environ.pop("PS1") # Reset
         
 while(1):
     if 'PS1' in os.environ: # Requirement 1 Prompt String. Default = "$ "
