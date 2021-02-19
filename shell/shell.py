@@ -63,7 +63,8 @@ def piping(args): # Method to execute piping. Seperated to allow for multiple pi
                 
         
 while(1):
-    if 'PS1' in os.environ: # Requirement 1 Prompt String. Default = "$ "
+    # added the < 3 because PS1 was still printing an extrneous string 
+    if 'PS1' in os.environ and len(os.environ['PS1']) < 3: # Requirement 1 Prompt String.
         os.write(1,(os.environ['PS1']).encode())
     else:
         os.write(1, "$ ".encode())
