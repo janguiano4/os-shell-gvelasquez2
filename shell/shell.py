@@ -88,6 +88,11 @@ while(1):
         continue # Return to top of while
 
     rc = os.fork()
+    backgroundTask = True
+
+    if '&' in args:
+        backgroundTask = False
+        args.remove('&')
 
     if rc < 0: # Requirement 3: Command fails
         os.write(2,("Program terminated with exit code" + rc +"\n").encode())
@@ -144,5 +149,6 @@ while(1):
             os.write(2,(args[0] + ":command not found \n").encode())
             sys.exit(1)
                                 
-    else: # Parent process 
-        childPidCode = os.wait()
+    else: # Parent process
+        if backgroundTask: # if we had an &
+            childPidCode = os.wait()
